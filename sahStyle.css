@@ -7,7 +7,7 @@ body {
     background-color: #f4f4f9;
 }
 
-#chessboard {
+#ploca {
     display: grid;
     grid-template-columns: repeat(8, 60px);
     grid-template-rows: repeat(8, 60px);
@@ -16,7 +16,7 @@ body {
     height: 480px;
 }
 
-.square {
+.kvadrat {
     width: 60px;
     height: 60px;
     display: flex;
@@ -27,14 +27,22 @@ body {
     cursor: grab;
 }
 
-.black {
-    background-color: #0e0400;
+.bijela {
+    background-color: #c2d1a4; 
 }
 
-.white {
-    background-color: #eeeed2;
+.crna {
+    background-color: #567d46; 
 }
 
-.dragging {
+.pomjeranje {
     opacity: 0.5;
+}
+.bijela-figura {
+    color: #fff;
+}
+
+
+.crna-figura {
+    color: #000; 
 }
