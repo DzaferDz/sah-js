@@ -1,7 +1,5 @@
 const ploca = document.getElementById('ploca');
 let trenutniIgrac = 'bijeli';  // Bijeli igrač počinje
-let selektovanaFigura = null;
-let pocetnaPozicija = null;
 
 const figure = {
     't': '♜', 's': '♞', 'l': '♝', 'q': '♛', 'k': '♚', 'p': '♟',  // Crne figure
@@ -19,9 +17,9 @@ const pocetnaPloca = [
     'TSLQKLST'
 ];
 
-
+// Kreiranje ploče
 function kreirajPlocu() {
-    ploca.innerHTML = '';  
+    ploca.innerHTML = '';  // Resetuje ploču
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             const kvadrat = document.createElement('div');
@@ -38,15 +36,7 @@ function kreirajPlocu() {
                 } else {
                     kvadrat.classList.add('bijela-figura');
                 }
-
-
-                kvadrat.setAttribute('draggable', true);
-                kvadrat.addEventListener('dragstart', (e) => zapocniPovlacenje(e, i, j));
             }
-
-
-            kvadrat.addEventListener('dragover', dozvoliPad);
-            kvadrat.addEventListener('drop', (e) => zavrsiPovlacenje(e, i, j));
 
             kvadrat.dataset.pozicija = `${i},${j}`;
             ploca.appendChild(kvadrat);
@@ -54,32 +44,49 @@ function kreirajPlocu() {
     }
 }
 
+// Funkcija za pomjeranje figure na osnovu unosa
+function unesiPotez() {
+    let potez = prompt("Unesite potez (npr. e2-e4):");
+    
+    if (!potez || potez.length !== 5 || potez[2] !== '-') {
+        alert("Neispravan unos! Koristite format 'e2-e4'.");
+        return;
+    }
 
-function zapocniPovlacenje(event, i, j) {
-    selektovanaFigura = pocetnaPloca[i][j];
-    pocetnaPozicija = { i, j };
-    event.dataTransfer.setData('text', `${i},${j}`);
-}
+    let startnoPolje = potez.slice(0, 2);
+    let ciljanoPolje = potez.slice(3, 5);
 
+    let [staraRow, staraCol] = pozicijaToKoordinate(startnoPolje);
+    let [novaRow, novaCol] = pozicijaToKoordinate(ciljanoPolje);
 
-function dozvoliPad(event) {
-    event.preventDefault();
-}
+    const figura = pocetnaPloca[staraRow][staraCol];
 
-function zavrsiPovlacenje(event, i2, j2) {
-    event.preventDefault();
+    if ((trenutniIgrac === 'bijeli' && figura === figura.toLowerCase()) ||
+        (trenutniIgrac === 'crni' && figura === figura.toUpperCase())) {
+        alert("Nije tvoj red!");
+        return;
+    }
 
-    if (!selektovanaFigura) return;
+    // Pomjeranje figure
+    pocetnaPloca[staraRow][staraCol] = '.';
+    pocetnaPloca[novaRow][novaCol] = figura;
 
-    pocetnaPloca[pocetnaPozicija.i][pocetnaPozicija.j] = '.';
-    pocetnaPloca[i2][j2] = selektovanaFigura;
-
- 
-    selektovanaFigura = null;
+    // Promjena igrača
     trenutniIgrac = trenutniIgrac === 'bijeli' ? 'crni' : 'bijeli';
 
-
+    // Ponovno iscrtavanje ploče
     kreirajPlocu();
 }
 
+// Pretvaranje šahovske notacije u koordinate ploče (npr. "e2" => [6, 4])
+function pozicijaToKoordinate(pozicija) {
+    const kolona = pozicija[0].charCodeAt(0) - 'a'.charCodeAt(0);  // "a" je 0, "b" je 1, itd.
+    const red = 8 - parseInt(pozicija[1], 10);  // Šahovski red (1-8) preokrećemo u (0-7)
+    return [red, kolona];
+}
+
+// Kreiraj početnu ploču
 kreirajPlocu();
+
+// Traži potez od igrača
+document.getElementById('ploca').addEventListener('click', unesiPotez);
