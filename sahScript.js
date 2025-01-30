@@ -47,23 +47,29 @@ function onKvadratClick(i, j) {
     if (selektovanaFigura) {
         
         const figura = pocetnaPloca[selektovanaFigura[0]][selektovanaFigura[1]];
-        if (!figura || figura === '.') {
-            alert("Ne možete pomeriti prazno polje!");
-            return;
-        }
+
+        
         if ((trenutniIgrac === 'bijeli' && figura === figura.toLowerCase()) ||
             (trenutniIgrac === 'crni' && figura === figura.toUpperCase())) {
             alert("Nije tvoj red!");
             return;
         }
-        pocetnaPloca[selektovanaFigura[0]][selektovanaFigura[1]] = '.';
-        pocetnaPloca[i][j] = figura;
-        trenutniIgrac = trenutniIgrac === 'bijeli' ? 'crni' : 'bijeli';
-        selektovanaFigura = null;
-        kreirajPlocu();
-    } else {
+
         
+        if (pocetnaPloca[i][j] !== '.' && pocetnaPloca[i][j] !== figura) {
+            
+            pocetnaPloca[selektovanaFigura[0]][selektovanaFigura[1]] = '.';
+            pocetnaPloca[i][j] = figura;
+
+            
+            trenutniIgrac = trenutniIgrac === 'bijeli' ? 'crni' : 'bijeli';
+
+            selektovanaFigura = null;
+            kreirajPlocu();
+        }
+    } else {
         const figura = pocetnaPloca[i][j];
+
         if (figura === '.') {
             alert("Nema figure na ovom polju!");
             return;
@@ -74,6 +80,7 @@ function onKvadratClick(i, j) {
             alert("To nije tvoja figura!");
             return;
         }
+
 
         selektovanaFigura = [i, j];
         alert(`Figura selektovana na poziciji ${i + 1}, ${j + 1}`);
