@@ -1,9 +1,10 @@
 const ploca = document.getElementById('ploca');
-let trenutniIgrac = 'bijeli';  // Bijeli igrač počinje
+let trenutniIgrac = 'bijeli'; 
+let selektovanaFigura = null; 
 
 const figure = {
-    't': '♜', 's': '♞', 'l': '♝', 'q': '♛', 'k': '♚', 'p': '♟',  // Crne figure
-    'T': '♖', 'S': '♘', 'L': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'   // Bijele figure
+    't': '♜', 's': '♞', 'l': '♝', 'q': '♛', 'k': '♚', 'p': '♟',  
+    'T': '♖', 'S': '♘', 'L': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'   
 };
 
 const pocetnaPloca = [
@@ -17,9 +18,8 @@ const pocetnaPloca = [
     'TSLQKLST'
 ];
 
-// Kreiranje ploče
 function kreirajPlocu() {
-    ploca.innerHTML = '';  // Resetuje ploču
+    ploca.innerHTML = '';  
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             const kvadrat = document.createElement('div');
@@ -30,63 +30,54 @@ function kreirajPlocu() {
             if (figura !== '.') {
                 kvadrat.textContent = figure[figura];
 
-                // Dodaj klasu za crne ili bijele figure
                 if (figura === figura.toLowerCase()) {
                     kvadrat.classList.add('crna-figura');
                 } else {
                     kvadrat.classList.add('bijela-figura');
                 }
             }
-
             kvadrat.dataset.pozicija = `${i},${j}`;
+            kvadrat.addEventListener('click', () => onKvadratClick(i, j));
             ploca.appendChild(kvadrat);
         }
     }
 }
 
-// Funkcija za pomjeranje figure na osnovu unosa
-function unesiPotez() {
-    let potez = prompt("Unesite potez (npr. e2-e4):");
-    
-    if (!potez || potez.length !== 5 || potez[2] !== '-') {
-        alert("Neispravan unos! Koristite format 'e2-e4'.");
-        return;
+function onKvadratClick(i, j) {
+    if (selektovanaFigura) {
+        
+        const figura = pocetnaPloca[selektovanaFigura[0]][selektovanaFigura[1]];
+        if (!figura || figura === '.') {
+            alert("Ne možete pomeriti prazno polje!");
+            return;
+        }
+        if ((trenutniIgrac === 'bijeli' && figura === figura.toLowerCase()) ||
+            (trenutniIgrac === 'crni' && figura === figura.toUpperCase())) {
+            alert("Nije tvoj red!");
+            return;
+        }
+        pocetnaPloca[selektovanaFigura[0]][selektovanaFigura[1]] = '.';
+        pocetnaPloca[i][j] = figura;
+        trenutniIgrac = trenutniIgrac === 'bijeli' ? 'crni' : 'bijeli';
+        selektovanaFigura = null;
+        kreirajPlocu();
+    } else {
+        
+        const figura = pocetnaPloca[i][j];
+        if (figura === '.') {
+            alert("Nema figure na ovom polju!");
+            return;
+        }
+
+        if ((trenutniIgrac === 'bijeli' && figura === figura.toLowerCase()) ||
+            (trenutniIgrac === 'crni' && figura === figura.toUpperCase())) {
+            alert("To nije tvoja figura!");
+            return;
+        }
+
+        selektovanaFigura = [i, j];
+        alert(`Figura selektovana na poziciji ${i + 1}, ${j + 1}`);
     }
-
-    let startnoPolje = potez.slice(0, 2);
-    let ciljanoPolje = potez.slice(3, 5);
-
-    let [staraRow, staraCol] = pozicijaToKoordinate(startnoPolje);
-    let [novaRow, novaCol] = pozicijaToKoordinate(ciljanoPolje);
-
-    const figura = pocetnaPloca[staraRow][staraCol];
-
-    if ((trenutniIgrac === 'bijeli' && figura === figura.toLowerCase()) ||
-        (trenutniIgrac === 'crni' && figura === figura.toUpperCase())) {
-        alert("Nije tvoj red!");
-        return;
-    }
-
-    // Pomjeranje figure
-    pocetnaPloca[staraRow][staraCol] = '.';
-    pocetnaPloca[novaRow][novaCol] = figura;
-
-    // Promjena igrača
-    trenutniIgrac = trenutniIgrac === 'bijeli' ? 'crni' : 'bijeli';
-
-    // Ponovno iscrtavanje ploče
-    kreirajPlocu();
 }
 
-// Pretvaranje šahovske notacije u koordinate ploče (npr. "e2" => [6, 4])
-function pozicijaToKoordinate(pozicija) {
-    const kolona = pozicija[0].charCodeAt(0) - 'a'.charCodeAt(0);  // "a" je 0, "b" je 1, itd.
-    const red = 8 - parseInt(pozicija[1], 10);  // Šahovski red (1-8) preokrećemo u (0-7)
-    return [red, kolona];
-}
-
-// Kreiraj početnu ploču
 kreirajPlocu();
-
-// Traži potez od igrača
-document.getElementById('ploca').addEventListener('click', unesiPotez);
